@@ -2,6 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jake's Pixel Painter</title>
+    <!-- <link rel="icon" type="image/x-icon" href="/images/favicon.ico"> -->
 
     <style>
         :root{
@@ -91,6 +92,10 @@
             display: flex;
             align-items: center;
             gap: 5px;
+        }
+
+        .root-page .setting > :is(input, toggle-switch, svg){
+            cursor: pointer;
         }
 
         .root-page .spacer{
@@ -202,6 +207,7 @@
                 <div class="setting draw-color-picker">
                     Select Drawing Color:
                     <input type="color" class="draw-color-input" value="#FF0000">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"/></svg>
                 </div>
 
                 <div class="spacer"></div>
@@ -225,7 +231,10 @@
                     Dividers: 
                     <toggle-switch class="dividers-toggle checked"></toggle-switch>
                 </div>
-                <button class="save-button">Save</button>
+                <div class="setting saving">Save File: 
+                    <input type="text" class="save-file-name">
+                    <button class="save-button poppins-medium">Save</button>
+                </div>
             </div>
             <div class="right-side">
                 <div class="buttons-container">
@@ -402,15 +411,15 @@
                             const newX = lastColoredCell.pixelX + (this.cellWidth * i) * Math.cos(angleRAD);
                             const newY = lastColoredCell.pixelY + (this.cellHeight * i) * Math.sin(angleRAD);
 
-                            pointsToColor.push({pixelX: newX, pixelY: newY, x: Math.floor(newX / this.cellWidth), y: Math.floor(newY / this.cellHeight)});
+                            pointsToColor.push({ x: Math.floor(newX / this.cellWidth), y: Math.floor(newY / this.cellHeight)});
                         }
                     }
                 }
-                pointsToColor.push({pixelX, pixelY, x, y});
+                pointsToColor.push({ x, y});
 
                 for(const {x, y} of pointsToColor){
                     if(this.cells[y][x] !== newValue){
-                        this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x]});
+                        this.lastStroke[this.lastStroke.length-1].push({ x, y, previous: this.cells[y][x]});
                         this.cells[y][x] = newValue;
                         this.draw();
                     }
@@ -464,14 +473,28 @@
             UndoStroke(){
                 if(!this.lastStroke.length){ return; } // nothing to undo
 
-                for(const { pixelX, pixelY, x, y, previous} of this.lastStroke[this.lastStroke.length-1]){ this.cells[y][x] = previous; }
+                for(const { x, y, previous} of this.lastStroke[this.lastStroke.length-1]){ this.cells[y][x] = previous; }
                 this.lastStroke.pop();
                 this.draw();
             };
 
             ClearCanvas(){
-                this.cells = [];
-                for(let i = 0; i < this.numberOfCellsHeight; i++){ this.cells.push(new Array(this.numberOfCellsWidth)); }
+                let needNewStroke = true;
+
+                for (let y = 0; y < this.cells.length; y++) {
+                    for (let x = 0; x < this.cells[y].length; x++) {
+                        if(typeof this.cells[y][x] === 'string'){
+                            if(needNewStroke){
+                                canvas.lastStroke.push([]);
+                                needNewStroke = false;
+                            }
+
+                            this.lastStroke[this.lastStroke.length-1].push({ x, y, previous: this.cells[y][x]});
+                            this.cells[y][x] = undefined;
+                        }
+                    }
+                }
+
                 this.draw();
             };
 
@@ -530,7 +553,7 @@
 
             const link = document.createElement('a');
             link.href = tempCanvas.toDataURL('image/png');
-            link.download = 'canvas-image.png';
+            link.download = `${document.querySelector('.save-file-name')}.png`;
             link.click();
         });
 
