@@ -411,15 +411,15 @@
                             const newX = lastColoredCell.pixelX + (this.cellWidth * i) * Math.cos(angleRAD);
                             const newY = lastColoredCell.pixelY + (this.cellHeight * i) * Math.sin(angleRAD);
 
-                            pointsToColor.push({ x: Math.floor(newX / this.cellWidth), y: Math.floor(newY / this.cellHeight)});
+                            pointsToColor.push({pixelX: newX, pixelY: newY, x: Math.floor(newX / this.cellWidth), y: Math.floor(newY / this.cellHeight)});
                         }
                     }
                 }
-                pointsToColor.push({ x, y});
+                pointsToColor.push({pixelX, pixelY, x, y});
 
                 for(const {x, y} of pointsToColor){
                     if(this.cells[y][x] !== newValue){
-                        this.lastStroke[this.lastStroke.length-1].push({ x, y, previous: this.cells[y][x]});
+                        this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x]});
                         this.cells[y][x] = newValue;
                         this.draw();
                     }
