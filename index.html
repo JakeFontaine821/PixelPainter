@@ -1,0 +1,580 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jake's Pixel Painter</title>
+
+    <style>
+        :root{
+            --text: #e1f3f2;
+            --background: #0a1918;
+            --primary: #9BCFCB;
+            --secondary: #242424;
+            --accent: #6DFBF5;
+            --grey-scale: #564956;
+        }
+
+        body{
+            margin: 0;
+            padding: 0;
+            background-color: var(--background);
+        }
+
+        /*************************** Fonts ***************************/
+
+        .poppins-medium {
+            font-family: "Poppins", sans-serif;
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        .poppins-bold {
+            font-family: "Poppins", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        /*************************** General Classes ***************************/
+        .hidden{
+            display: none !important;
+        }
+
+        .invisible{
+            visibility: hidden !important;
+        }
+
+        *[disabled]{
+            user-select: none;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .cursor-cell{
+            cursor: cell;
+        }
+
+        /************************* Actual Page Styling ************************/
+
+        .root-page{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .root-page > .content-container{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .root-page > .content-container > div{
+            flex: 1;
+        }
+
+        .root-page .left-side{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            align-items: start;
+            padding: 0 10px;
+        }
+
+        .root-page .header{
+            font-size: 50px;
+            color: var(--text);
+        }
+
+        .root-page .setting{
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .root-page .spacer{
+            height: 15px;
+        }
+
+        .root-page .right-side{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .root-page .right-side .buttons-container{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .root-page .right-side .buttons-container .button{
+            width: 40px;
+            height: 40px;
+            background-color: var(--secondary);
+            border: 2px solid var(--grey-scale);
+            border-radius: 4px;
+            fill: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .root-page .right-side .buttons-container > div{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .root-page .right-side .buttons-container .button.selected{
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+        }
+
+        .root-page .right-side .buttons-container .button:hover{
+            border: 2px solid var(--accent);
+        }
+
+        .root-page canvas{
+            background-color: #FFF;
+        }
+
+        /************************* Toggle Switch ******************************/
+
+        .toggle-switch{
+            background-color: var(--background);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            display: flex;
+            width: 35px;
+            height: 18px;
+            padding: 3px;
+            align-items: center;
+            position: relative;
+        }
+
+        .toggle-switch .switch{
+            height: 15px;
+            width: 15px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            position: absolute;
+            transition: transform .4s, background-color .4s;
+        }
+
+        .toggle-switch.checked .switch{
+            transform: translateX(20px);
+            background-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="root-page">
+        <div class="content-container poppins-medium">
+            <div class="left-side">
+                <div class="header poppins-bold">Pixel Painter</div>
+                <div class="setting canvas-width-setting">
+                    Canvas Width (pixels):
+                    <select class="canvas-width-input">
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                    </select>
+                </div>
+                <div class="setting canvas-height-setting">
+                    Canvas Height (pixels):
+                    <select class="canvas-height-input">
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                    </select>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="setting draw-color-picker">
+                    Select Drawing Color:
+                    <input type="color" class="draw-color-input" value="#FF0000">
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="setting outline">
+                    Outline: 
+                    <toggle-switch class="outline-toggle checked"></toggle-switch>
+                </div>
+                <div class="setting outline-size-row">
+                    Outline Size: 
+                    1 -<input type="range" class="outline-size-input" min="1" max="3" value="2">- 3
+                </div>
+                <div class="setting outline-color-row">
+                    Select Outline Color:
+                    <input type="color" class="outline-color-input" value="#000000">
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="setting dividers">
+                    Dividers: 
+                    <toggle-switch class="dividers-toggle checked"></toggle-switch>
+                </div>
+                <button class="save-button">Save</button>
+            </div>
+            <div class="right-side">
+                <div class="buttons-container">
+                    <div class="draw-mode-buttons">
+                        <div class="button selected" value="draw"  title="Draw"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg></div>
+                        <div class="button"          value="erase" title="Erase"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z"/></svg></div>
+                    </div>
+                    <div>
+                        <div class="button undo-button"  value="undo"  title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg></div>
+                        <div class="button clear-button" value="clear" title="Clear Canvas"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></div>
+                    </div>
+                    <div class="save-color-buttons">
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                        <div class="button"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ToggleSwitch extends HTMLElement{
+            constructor(){
+                super();
+
+                this.classList.add('toggle-switch');
+
+                this.innerHTML = `
+                    <div class="switch"></div>
+                `;
+
+                this.addEventListener('click', () => {
+                    this.classList.toggle('checked');
+                    this.dispatchEvent(new Event('change'));
+                });
+            };
+
+            get checked(){
+                return this.classList.contains('checked');
+            };
+        };
+        customElements.define('toggle-switch', ToggleSwitch);
+
+        class DrawableCanvas{
+            constructor(){
+                const canvas = document.createElement('canvas');
+                canvas.classList.add('cursor-cell');
+                canvas.setAttribute('width', '750px');
+                canvas.setAttribute('height', '750px');
+
+                canvas.numberOfCellsWidth = 16;
+                canvas.numberOfCellsHeight = 16;
+                canvas.cellWidth = canvas.width / canvas.numberOfCellsWidth; // pixel width of cell
+                canvas.cellHeight = canvas.height / canvas.numberOfCellsHeight; // pixel height of cell
+
+                canvas.drawColor = '#F00';
+                canvas.drawDividers = true;
+                canvas.strokeWidth = 2;
+                canvas.outlineColor = '#000';
+                canvas.drawOutlines = true;
+
+                canvas.drawMode = 'draw';
+                canvas.lastStroke = [];
+
+                canvas.cells = [];
+                for(let i = 0; i < canvas.numberOfCellsHeight; i++){ canvas.cells.push(new Array(canvas.numberOfCellsWidth)); }
+
+                canvas.drawing = false
+                canvas.addEventListener('mousedown', (e) => {
+                    canvas.drawing = true;
+
+                    if(canvas.lastStroke.length >= 40){ canvas.lastStroke.shift(); } // Cap the undo to 40
+                    canvas.lastStroke.push([]);
+
+                    canvas.ColorCell(e.offsetX, e.offsetY);
+                });
+                canvas.addEventListener('mouseup', () => canvas.drawing = false);
+                canvas.addEventListener('mouseleave', () => canvas.drawing = false);
+                canvas.addEventListener('mousemove', (e) => { if(canvas.drawing){ canvas.ColorCell(e.offsetX, e.offsetY); }});
+
+                for(const propName of Object.getOwnPropertyNames(DrawableCanvas.prototype)){
+                    if(propName === 'constructor'){ continue; }
+                    if(typeof this[propName] === 'function'){ canvas[propName] = this[propName].bind(canvas); }
+                }
+
+                return canvas;
+            };
+
+            draw(){
+                const ctx = this.getContext('2d');
+                ctx.clearRect(0, 0, this.width, this.height);
+
+                // draw cells
+                for(let y = 0; y < this.cells.length; y++){
+                    for(let x = 0; x < this.cells[y].length; x++){
+                        if(!this.cells[y][x]){ continue; }
+                        ctx.fillStyle = this.cells[y][x];
+                        ctx.fillRect(x * this.cellWidth, y * this.cellHeight, this.cellWidth, this.cellHeight);
+
+                        if(!this.drawOutlines){ continue; }
+                        ctx.lineWidth = this.strokeWidth;
+                        ctx.strokeStyle = this.outlineColor;
+                        if(!this.cells?.[y-1]?.[x]){ this.DrawLine(x * this.cellWidth, y * this.cellHeight, (x+1) * this.cellWidth, y * this.cellHeight); } // Above
+                        if(!this.cells?.[y]?.[x-1]){ this.DrawLine(x * this.cellWidth, y * this.cellHeight, x * this.cellWidth, (y+1) * this.cellHeight); } // Left
+                        if(!this.cells?.[y+1]?.[x]){ this.DrawLine(x * this.cellWidth, (y+1) * this.cellHeight, (x+1) * this.cellWidth, (y+1) * this.cellHeight); } // Below
+                        if(!this.cells?.[y]?.[x+1]){ this.DrawLine((x+1) * this.cellWidth, y * this.cellHeight, (x+1) * this.cellWidth, (y+1) * this.cellHeight); } // Right
+                    }
+                }
+                
+                // draw lines over cells
+                if(!this.drawDividers){ return; }
+
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#000';
+                for(let i = 0; i <= this.width; i += this.cellWidth){ this.DrawLine(i, 0, i, this.height); }
+                for(let i = 0; i <= this.height; i += this.cellHeight){ this.DrawLine(0, i, this.width, i); }
+            };
+
+            Print(canvas){
+                const ctx = this.getContext('2d');
+                ctx.clearRect(0, 0, this.width, this.height);
+
+                // draw cells
+                for(let y = 0; y < canvas.cells.length; y++){
+                    for(let x = 0; x < canvas.cells[y].length; x++){
+                        if(!canvas.cells[y][x]){ continue; }
+                        ctx.fillStyle = canvas.cells[y][x];
+                        ctx.fillRect(x, y, 1, 1);
+
+                        if(!canvas.drawOutlines){ continue; }
+                        ctx.lineWidth = canvas.strokeWidth;
+                        ctx.strokeStyle = canvas.outlineColor;
+                        if(!canvas.cells?.[y-1]?.[x]){ this.DrawLine(x, y, (x+1), y); } // Above
+                        if(!canvas.cells?.[y]?.[x-1]){ this.DrawLine(x, y, x, (y+1)); } // Left
+                        if(!canvas.cells?.[y+1]?.[x]){ this.DrawLine(x, (y+1), (x+1), (y+1)); } // Below
+                        if(!canvas.cells?.[y]?.[x+1]){ this.DrawLine((x+1), y, (x+1), (y+1)); } // Right
+                    }
+                }
+            };
+
+            ColorCell(pixelX, pixelY){
+                const y = Math.floor(pixelY / this.cellHeight);
+                const x = Math.floor(pixelX / this.cellHeight);
+                if(y < 0 || y >= this.numberOfCellsHeight || x < 0 || x >= this.numberOfCellsWidth){ return; } // Off canvas
+
+                // New value to fill in the cell width
+                const newValue = (() => {
+                    if(this.drawMode === 'draw'){ return this.drawColor; }
+                    else if(this.drawMode === 'erase'){ return undefined; }
+                })();
+
+                // Check the distance from the new point to the last one in the current stroke
+                // If the distance is too far, itll create skipping in the line, no good
+                // In order to keep the stroke clean no matter how fast the mouse moves, create new points in between the last and new
+                // to fill in the space between
+                const lastColoredCell = this.lastStroke[this.lastStroke.length-1].slice(-1)[0];
+                const pointsToColor = [];
+                if(lastColoredCell){
+                    const distFromLastColoredCell = Math.sqrt(Math.pow(pixelX - lastColoredCell.pixelX, 2) + Math.pow(pixelY - lastColoredCell.pixelY, 2));
+
+                    if(distFromLastColoredCell > this.cellWidth){
+                        const pointsInBetween = Math.floor(distFromLastColoredCell / this.cellWidth);
+                        const angleRAD = Math.atan2((pixelY - lastColoredCell.pixelY), (pixelX - lastColoredCell.pixelX));
+
+                        for (let i = 1; i <= pointsInBetween; i++) {
+                            const newX = lastColoredCell.pixelX + (this.cellWidth * i) * Math.cos(angleRAD);
+                            const newY = lastColoredCell.pixelY + (this.cellHeight * i) * Math.sin(angleRAD);
+
+                            pointsToColor.push({pixelX: newX, pixelY: newY, x: Math.floor(newX / this.cellWidth), y: Math.floor(newY / this.cellHeight)});
+                        }
+                    }
+                }
+                pointsToColor.push({pixelX, pixelY, x, y});
+
+                for(const {x, y} of pointsToColor){
+                    if(this.cells[y][x] !== newValue){
+                        this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x]});
+                        this.cells[y][x] = newValue;
+                        this.draw();
+                    }
+                }
+            };
+
+            setDrawMode(newMode){
+                this.drawMode = newMode;
+            };
+
+            ChangeResolution(width, height){
+                this.setAttribute('width',  width < height ? `${750 / Math.round(height / width)}px` : '750px');
+                this.setAttribute('height', height < width ? `${750 / Math.round(width / height)}px` : '750px');
+
+
+                this.numberOfCellsWidth = width;
+                this.numberOfCellsHeight = height;
+                this.cellWidth = this.width / this.numberOfCellsWidth; // pixel width of cell
+                this.cellHeight = this.height / this.numberOfCellsHeight; // pixel height of cell
+
+                this.cells = [];
+                for(let i = 0; i < this.numberOfCellsHeight; i++){ this.cells.push(new Array(this.numberOfCellsWidth)); }
+                this.draw();
+            };
+
+            setDrawColor(newColor){
+                this.drawColor = newColor;
+                this.draw();
+            };
+
+            setDrawOutlines(toggle){
+                this.drawOutlines = toggle;
+                this.draw();
+            };
+
+            setOutLineSize(size){
+                this.strokeWidth = size;
+                this.draw();
+            };
+
+            setOutlineColor(newColor){
+                this.outlineColor = newColor;
+                this.draw();
+            };
+
+            setDrawDividers(toggle){
+                this.drawDividers = toggle;
+                this.draw();
+            };
+
+            UndoStroke(){
+                if(!this.lastStroke.length){ return; } // nothing to undo
+
+                for(const { pixelX, pixelY, x, y, previous} of this.lastStroke[this.lastStroke.length-1]){ this.cells[y][x] = previous; }
+                this.lastStroke.pop();
+                this.draw();
+            };
+
+            ClearCanvas(){
+                this.cells = [];
+                for(let i = 0; i < this.numberOfCellsHeight; i++){ this.cells.push(new Array(this.numberOfCellsWidth)); }
+                this.draw();
+            };
+
+            // This is really annoying to repeat for lines so just turning it into a function
+            DrawLine(x1, y1, x2, y2){
+                const ctx = this.getContext('2d');
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            };
+        };
+
+        // create the canvas
+        const canvas = new DrawableCanvas();
+        document.querySelector('.right-side').appendChild(canvas);
+
+        // canvas width and height
+        const canvasWidthInput = document.querySelector('.canvas-width-input');
+        const canvasHeightInput = document.querySelector('.canvas-height-input');
+        const setResolution = (w, h) => {
+            const width = parseInt(w);
+            const height = parseInt(h);
+            canvas.ChangeResolution(width, height);
+        }
+        canvasWidthInput.addEventListener('change', () => setResolution(canvasWidthInput.value, canvasHeightInput.value));
+        canvasHeightInput.addEventListener('change', () =>  setResolution(canvasWidthInput.value, canvasHeightInput.value));
+
+        // toggle the cell's outline
+        const outlineToggle = document.querySelector('.outline-toggle');
+        const outlineSizeRow = document.querySelector('.outline-size-row')
+        const outlineColorRow = document.querySelector('.outline-color-row');
+        outlineToggle.addEventListener('change', () => {
+            canvas.setDrawOutlines(outlineToggle.checked);
+            outlineSizeRow.toggleAttribute('disabled', !outlineToggle.checked);
+            outlineColorRow.toggleAttribute('disabled', !outlineToggle.checked);
+        });
+
+        // set the outline width
+        const outlineSizeInput = document.querySelector('.outline-size-input');
+        outlineSizeInput.addEventListener('input', () => canvas.setOutLineSize(outlineSizeInput.value));
+
+        // toggle the cell's outline color
+        const outlineColorInput = document.querySelector('.outline-color-input');
+        outlineColorInput.addEventListener('change', () => canvas.setOutlineColor(outlineColorInput.value));
+
+        // toggle the dividers
+        const dividersToggle = document.querySelector('.dividers-toggle');
+        dividersToggle.addEventListener('change', () => canvas.setDrawDividers(dividersToggle.checked));
+
+        document.querySelector('.save-button').addEventListener('click', () => {
+            const tempCanvas = new DrawableCanvas();
+            tempCanvas.width = parseInt(canvasWidthInput.value);
+            tempCanvas.height = parseInt(canvasHeightInput.value);
+            tempCanvas.Print(canvas);
+
+            const link = document.createElement('a');
+            link.href = tempCanvas.toDataURL('image/png');
+            link.download = 'canvas-image.png';
+            link.click();
+        });
+
+        const drawModeButtons = document.querySelector('.draw-mode-buttons');
+        for(const modeButton of Array.from(drawModeButtons.children)){
+            modeButton.addEventListener('click', () => {
+                drawModeButtons.querySelector('.selected').classList.remove('selected');
+                canvas.setDrawMode(modeButton.getAttribute('value'));
+                modeButton.classList.add('selected');
+            });
+        }
+
+        document.querySelector('.undo-button').addEventListener('click', () => canvas.UndoStroke());
+        document.querySelector('.clear-button').addEventListener('click', () => canvas.ClearCanvas());
+
+        const saveColorContainer = document.querySelector('.save-color-buttons');
+        for(const colorButton of Array.from(saveColorContainer.children)){
+            colorButton.addEventListener('click', () => {
+                const currentSelected = saveColorContainer.querySelector('.selected');
+                if(currentSelected){ currentSelected.classList.remove('selected'); }
+
+                canvas.setDrawColor(colorButton.style.backgroundColor);
+                colorButton.classList.add('selected');
+            });
+        }
+
+        // color picker
+        const colorInput = document.querySelector('.draw-color-input');
+        colorInput.addEventListener('change', () => {
+            const notSetContainer = saveColorContainer.querySelector('div:not(.set)');
+            const currentSelected = saveColorContainer.querySelector('.selected');
+
+            if(notSetContainer){ // there is an unset container
+                if(currentSelected){ currentSelected.classList.remove('selected'); }
+
+                notSetContainer.style.backgroundColor = colorInput.value;
+                notSetContainer.classList.add('set', 'selected');
+            }
+            else{ currentSelected.style.backgroundColor = colorInput.value; }
+
+            canvas.setDrawColor(colorInput.value);
+        });
+
+        canvas.draw();
+    </script>
+</body>
+</html>
