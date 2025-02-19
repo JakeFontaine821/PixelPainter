@@ -49,6 +49,10 @@
             opacity: 0.5;
         }
 
+        .cursor-pointer{
+            cursor: pointer;
+        }
+
         .cursor-cell{
             cursor: cell;
         }
@@ -94,7 +98,21 @@
             gap: 5px;
         }
 
-        .root-page .setting > :is(input, toggle-switch, svg){
+        .root-page .dropper-tool-button{
+            fill: var(--text);
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .root-page .dropper-tool-button:hover{
+            border: 1px solid var(--primary);
+        }
+
+        .root-page .dropper-tool-button.selected{
+            border: 1px solid var(--accent);
+        }
+
+        .root-page .setting > :is(input, toggle-switch, svg, .dropper-tool-button, select, button){
             cursor: pointer;
         }
 
@@ -146,7 +164,7 @@
         }
 
         .root-page canvas{
-            background-color: #FFF;
+            background-color: #ffffff;
         }
 
         /************************* Toggle Switch ******************************/
@@ -206,8 +224,10 @@
 
                 <div class="setting draw-color-picker">
                     Select Drawing Color:
-                    <input type="color" class="draw-color-input" value="#FF0000">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"/></svg>
+                    <input type="color" class="draw-color-input" value="#ff0000">
+                    <div class="dropper-tool-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M120-120v-190l358-358-58-56 58-56 76 76 124-124q5-5 12.5-8t15.5-3q8 0 15 3t13 8l94 94q5 6 8 13t3 15q0 8-3 15.5t-8 12.5L705-555l76 78-57 57-56-58-358 358H120Zm80-80h78l332-334-76-76-334 332v78Zm447-410 96-96-37-37-96 96 37 37Zm0 0-37-37 37 37Z"/></svg>
+                    </div>
                 </div>
 
                 <div class="spacer"></div>
@@ -247,7 +267,7 @@
                         <div class="button clear-button" value="clear" title="Clear Canvas"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></div>
                     </div>
                     <div class="save-color-buttons">
-                        <div class="button set" title="#F00" style="background-color: #F00;"></div>
+                        <div class="button set selected" title="#ff0000" style="background-color: #ff0000;"></div>
                         <div class="button"     title="Empty" ></div>
                         <div class="button"     title="Empty" ></div>
                         <div class="button"     title="Empty" ></div>
@@ -297,13 +317,15 @@
                 canvas.numberOfCellsHeight = 16;
                 canvas.cellWidth = canvas.width / canvas.numberOfCellsWidth; // pixel width of cell
                 canvas.cellHeight = canvas.height / canvas.numberOfCellsHeight; // pixel height of cell
+                console.log(canvas.cellWidth);
 
-                canvas.drawColor = '#F00';
+                canvas.drawColor = '#ff0000';
                 canvas.drawDividers = true;
                 canvas.strokeWidth = 2;
-                canvas.outlineColor = '#000';
+                canvas.outlineColor = '#000000';
                 canvas.drawOutlines = true;
 
+                canvas.canDraw = true;
                 canvas.drawMode = 'draw';
                 canvas.lastStroke = [];
 
@@ -311,7 +333,8 @@
                 for(let i = 0; i < canvas.numberOfCellsHeight; i++){ canvas.cells.push(new Array(canvas.numberOfCellsWidth)); }
 
                 canvas.drawing = false
-                canvas.addEventListener('mousedown', (e) => {
+                canvas.addEventListener('mousedown', e => {
+                    if(!canvas.canDraw){ return; }
                     canvas.drawing = true;
 
                     if(canvas.lastStroke.length >= 40){ canvas.lastStroke.shift(); } // Cap the undo to 40
@@ -321,7 +344,7 @@
                 });
                 canvas.addEventListener('mouseup', () => canvas.drawing = false);
                 canvas.addEventListener('mouseleave', () => canvas.drawing = false);
-                canvas.addEventListener('mousemove', (e) => { if(canvas.drawing){ canvas.ColorCell(e.offsetX, e.offsetY); }});
+                canvas.addEventListener('mousemove', e => { if(canvas.drawing){ canvas.ColorCell(e.offsetX, e.offsetY); }});
 
                 for(const propName of Object.getOwnPropertyNames(DrawableCanvas.prototype)){
                     if(propName === 'constructor'){ continue; }
@@ -356,7 +379,7 @@
                 if(!this.drawDividers){ return; }
 
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = '#000';
+                ctx.strokeStyle = '#000000';
                 for(let i = 0; i <= this.width; i += this.cellWidth){ this.DrawLine(i, 0, i, this.height); }
                 for(let i = 0; i <= this.height; i += this.cellHeight){ this.DrawLine(0, i, this.width, i); }
             };
@@ -582,22 +605,54 @@
             });
         }
 
-        // color picker
-        const colorInput = document.querySelector('.draw-color-input');
-        colorInput.addEventListener('change', () => {
+        const setColor = (color) => {
+            if(typeof color !== 'string'){ color = `#${((1 << 24) | (color[0] << 16) | (color[1] << 8) | color[2]).toString(16).slice(1)}`;}
+
             const notSetContainer = saveColorContainer.querySelector('div:not(.set)');
             const currentSelected = saveColorContainer.querySelector('.selected');
 
             if(notSetContainer){ // there is an unset container
                 if(currentSelected){ currentSelected.classList.remove('selected'); }
 
-                notSetContainer.style.backgroundColor = colorInput.value;
-                notSetContainer.setAttribute('title', colorInput.value);
-                notSetContainer.classList.add('set', 'selected');
+                const existingColorButton = saveColorContainer.querySelector(`div[title='${color}']`);
+                if(existingColorButton){ existingColorButton.classList.add('selected'); }
+                else{
+                    notSetContainer.style.backgroundColor = color;
+                    notSetContainer.setAttribute('title', color);
+                    notSetContainer.classList.add('set', 'selected');
+                }
             }
-            else{ currentSelected.style.backgroundColor = colorInput.value; }
+            else{ currentSelected.style.backgroundColor = color; }
 
-            canvas.setDrawColor(colorInput.value);
+            canvas.setDrawColor(color);
+        };
+
+        // color picker
+        const colorInput = document.querySelector('.draw-color-input');
+        colorInput.addEventListener('change', () => setColor(colorInput.value));
+
+        const dropperTool = document.querySelector('.dropper-tool-button');
+        const canvasBoundingRect = canvas.getBoundingClientRect();
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        dropperTool.addEventListener('click', () => {
+            if(dropperTool.classList.contains('selected')){ return; }
+
+            document.addEventListener('mousedown', e => {
+                const pixelX = e.clientX - canvasBoundingRect.left;
+                const pixelY = e.clientY - canvasBoundingRect.top;
+                const pixelData = ctx.getImageData(pixelX, pixelY, 1, 1).data;
+                if(pixelData[3] !== 0){ setColor(pixelData); }
+
+                canvas.canDraw = true;
+                canvas.classList.remove('cursor-pointer');
+                canvas.classList.add('cursor-cell');
+                dropperTool.classList.remove('selected');
+            }, {once: true});
+
+            canvas.canDraw = false;
+            canvas.classList.remove('cursor-cell');
+            canvas.classList.add('cursor-pointer');
+            dropperTool.classList.add('selected');
         });
 
         canvas.draw();
