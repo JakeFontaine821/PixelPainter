@@ -466,6 +466,7 @@
                     const [checkX, checkY] = floodFillQueue.shift();
 
                     if(this.cells[checkY][checkX] === oldValue){
+                        this.lastStroke[this.lastStroke.length-1].push({ x: checkX, y: checkY, previous: this.cells[checkY][checkX]});
                         this.cells[checkY][checkX] = this.drawColor;
 
                         //                  Right                       Left                Below               Above
