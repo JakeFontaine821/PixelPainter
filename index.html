@@ -131,7 +131,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
         }
 
         .root-page .right-side .buttons-container .button{
@@ -252,7 +252,7 @@
                     <toggle-switch class="dividers-toggle checked"></toggle-switch>
                 </div>
                 <div class="setting saving">Save File: 
-                    <input type="text" class="save-file-name">
+                    <input type="text" class="save-file-name">.png
                     <button class="save-button poppins-medium">Save</button>
                 </div>
             </div>
@@ -261,6 +261,7 @@
                     <div class="draw-mode-buttons">
                         <div class="button selected" value="draw"  title="Draw"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg></div>
                         <div class="button"          value="erase" title="Erase"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z"/></svg></div>
+                        <div class="button"          value="fill"  title="Fill"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M346-140 100-386q-10-10-15-22t-5-25q0-13 5-25t15-22l230-229-106-106 62-65 400 400q10 10 14.5 22t4.5 25q0 13-4.5 25T686-386L440-140q-10 10-22 15t-25 5q-13 0-25-5t-22-15Zm47-506L179-432h428L393-646Zm399 526q-36 0-61-25.5T706-208q0-27 13.5-51t30.5-47l42-54 44 54q16 23 30 47t14 51q0 37-26 62.5T792-120Z"/></svg></div>
                     </div>
                     <div>
                         <div class="button undo-button"  value="undo"  title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg></div>
@@ -268,15 +269,15 @@
                     </div>
                     <div class="save-color-buttons">
                         <div class="button set selected" title="#ff0000" style="background-color: #ff0000;"></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
-                        <div class="button"     title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
+                        <div class="button"              title="Empty" ></div>
                     </div>
                 </div>
             </div>
@@ -317,7 +318,6 @@
                 canvas.numberOfCellsHeight = 16;
                 canvas.cellWidth = canvas.width / canvas.numberOfCellsWidth; // pixel width of cell
                 canvas.cellHeight = canvas.height / canvas.numberOfCellsHeight; // pixel height of cell
-                console.log(canvas.cellWidth);
 
                 canvas.drawColor = '#ff0000';
                 canvas.drawDividers = true;
@@ -335,12 +335,15 @@
                 canvas.drawing = false
                 canvas.addEventListener('mousedown', e => {
                     if(!canvas.canDraw){ return; }
-                    canvas.drawing = true;
 
                     if(canvas.lastStroke.length >= 40){ canvas.lastStroke.shift(); } // Cap the undo to 40
                     canvas.lastStroke.push([]);
 
-                    canvas.ColorCell(e.offsetX, e.offsetY);
+                    if(canvas.drawMode === 'fill'){ canvas.FillBlock(e.offsetX, e.offsetY); }
+                    else{
+                        canvas.drawing = true;
+                        canvas.ColorCell(e.offsetX, e.offsetY);
+                    }
                 });
                 canvas.addEventListener('mouseup', () => canvas.drawing = false);
                 canvas.addEventListener('mouseleave', () => canvas.drawing = false);
@@ -444,16 +447,44 @@
                     if(this.cells[y][x] !== newValue){
                         this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x]});
                         this.cells[y][x] = newValue;
-                        this.draw();
                     }
                 }
+
+                this.draw();
+            };
+
+            FillBlock(pixelX, pixelY){
+                const y = Math.floor(pixelY / this.cellHeight);
+                const x = Math.floor(pixelX / this.cellHeight);
+                if(y < 0 || y >= this.numberOfCellsHeight || x < 0 || x >= this.numberOfCellsWidth){ return; } // Off canvas
+
+                const oldValue = this.cells[y][x];
+                if(this.drawColor === oldValue){ return; } // same color
+
+                const floodFillQueue = [[x, y]];
+                while(floodFillQueue.length){
+                    const [checkX, checkY] = floodFillQueue.shift();
+
+                    if(this.cells[checkY][checkX] === oldValue){
+                        this.cells[checkY][checkX] = this.drawColor;
+
+                        //                  Right                       Left                Below               Above
+                        const neighbors = [[checkX + 1, checkY], [checkX - 1, checkY], [checkX, checkY + 1], [checkX, checkY - 1]];
+                        for(const [neighborX, neighborY] of neighbors){
+                            if(neighborX < 0 || neighborX >= this.numberOfCellsWidth || neighborY < 0 || neighborY >= this.numberOfCellsHeight){ continue; } // out of bounds
+                            floodFillQueue.push([neighborX, neighborY]);
+                        }
+                    }
+                }
+
+                this.draw();
             };
 
             setDrawMode(newMode){
                 this.drawMode = newMode;
             };
 
-            ChangeResolution(width, height){
+            changeResolution(width, height){
                 this.setAttribute('width',  width < height ? `${750 / Math.round(height / width)}px` : '750px');
                 this.setAttribute('height', height < width ? `${750 / Math.round(width / height)}px` : '750px');
 
@@ -541,7 +572,7 @@
         const setResolution = (w, h) => {
             const width = parseInt(w);
             const height = parseInt(h);
-            canvas.ChangeResolution(width, height);
+            canvas.changeResolution(width, height);
         }
         canvasWidthInput.addEventListener('change', () => setResolution(canvasWidthInput.value, canvasHeightInput.value));
         canvasHeightInput.addEventListener('change', () =>  setResolution(canvasWidthInput.value, canvasHeightInput.value));
@@ -576,7 +607,7 @@
 
             const link = document.createElement('a');
             link.href = tempCanvas.toDataURL('image/png');
-            link.download = `${document.querySelector('.save-file-name')}.png`;
+            link.download = `${document.querySelector('.save-file-name').value}.png`;
             link.click();
         });
 
