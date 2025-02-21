@@ -70,7 +70,7 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 10px;
+            padding: 0 50px;
         }
 
         .root-page > .content-container > div{
@@ -121,20 +121,27 @@
         }
 
         .root-page .right-side{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
+            display: grid;
+            grid-template-columns: auto auto;
+            grid-template-rows: auto auto;
+            column-gap: 3px;
+            row-gap: 3px;
         }
 
-        .root-page .right-side .buttons-container{
+        .root-page .right-side .draw-buttons{
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 15px;
         }
 
-        .root-page .right-side .buttons-container .button{
+        .root-page .right-side :is(.color-buttons, .draw-mode-buttons){
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .root-page .right-side .button{
             width: 40px;
             height: 40px;
             background-color: var(--secondary);
@@ -147,20 +154,26 @@
             cursor: pointer;
         }
 
-        .root-page .right-side .buttons-container > div{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .root-page .right-side .buttons-container .button.selected{
+        .root-page .right-side .button.selected{
             border: 2px solid var(--primary);
             border-radius: 10px;
         }
 
-        .root-page .right-side .buttons-container .button.set:hover{
+        .root-page .right-side .color-buttons .button.set:hover{
             border: 2px solid var(--accent);
+        }
+
+        .root-page .right-side .control-buttons{
+            display: flex;
+            justify-content: start;
+            align-items: end;
+            gap: 3px;
+        }
+
+        .root-page .right-side .canvas-container{
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
 
         .root-page canvas{
@@ -257,17 +270,14 @@
                 </div>
             </div>
             <div class="right-side">
-                <div class="buttons-container">
-                    <div class="draw-mode-buttons">
-                        <div class="button selected" value="draw"  title="Draw"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg></div>
-                        <div class="button"          value="erase" title="Erase"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z"/></svg></div>
-                        <div class="button"          value="fill"  title="Fill"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M346-140 100-386q-10-10-15-22t-5-25q0-13 5-25t15-22l230-229-106-106 62-65 400 400q10 10 14.5 22t4.5 25q0 13-4.5 25T686-386L440-140q-10 10-22 15t-25 5q-13 0-25-5t-22-15Zm47-506L179-432h428L393-646Zm399 526q-36 0-61-25.5T706-208q0-27 13.5-51t30.5-47l42-54 44 54q16 23 30 47t14 51q0 37-26 62.5T792-120Z"/></svg></div>
-                    </div>
-                    <div>
-                        <div class="button undo-button"  value="undo"  title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg></div>
-                        <div class="button clear-button" value="clear" title="Clear Canvas"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></div>
-                    </div>
-                    <div class="save-color-buttons">
+                <div class="blank"></div>
+                <div class="control-buttons">
+                    <div class="button undo-button"  value="undo"  title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg></div>
+                    <div class="button redo-button"  value="redo"  title="Redo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M396-200q-97 0-166.5-63T160-420q0-94 69.5-157T396-640h252L544-744l56-56 200 200-200 200-56-56 104-104H396q-63 0-109.5 40T240-420q0 60 46.5 100T396-280h284v80H396Z"/></svg></div>
+                    <div class="button clear-button" value="clear" title="Clear Canvas"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></div>
+                </div>
+                <div class="draw-buttons">
+                    <div class="color-buttons">
                         <div class="button set selected" title="#ff0000" style="background-color: #ff0000;"></div>
                         <div class="button"              title="Empty" ></div>
                         <div class="button"              title="Empty" ></div>
@@ -278,6 +288,11 @@
                         <div class="button"              title="Empty" ></div>
                         <div class="button"              title="Empty" ></div>
                         <div class="button"              title="Empty" ></div>
+                    </div>
+                    <div class="draw-mode-buttons">
+                        <div class="button selected" value="draw"  title="Draw"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg></div>
+                        <div class="button"          value="erase" title="Erase"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M690-240h190v80H610l80-80Zm-500 80-85-85q-23-23-23.5-57t22.5-58l440-456q23-24 56.5-24t56.5 23l199 199q23 23 23 57t-23 57L520-160H190Zm296-80 314-322-198-198-442 456 64 64h262Zm-6-240Z"/></svg></div>
+                        <div class="button"          value="fill"  title="Fill"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M346-140 100-386q-10-10-15-22t-5-25q0-13 5-25t15-22l230-229-106-106 62-65 400 400q10 10 14.5 22t4.5 25q0 13-4.5 25T686-386L440-140q-10 10-22 15t-25 5q-13 0-25-5t-22-15Zm47-506L179-432h428L393-646Zm399 526q-36 0-61-25.5T706-208q0-27 13.5-51t30.5-47l42-54 44 54q16 23 30 47t14 51q0 37-26 62.5T792-120Z"/></svg></div>
                     </div>
                 </div>
             </div>
@@ -311,8 +326,8 @@
             constructor(){
                 const canvas = document.createElement('canvas');
                 canvas.classList.add('cursor-cell');
-                canvas.setAttribute('width', '750px');
-                canvas.setAttribute('height', '750px');
+                canvas.setAttribute('width', '768px');
+                canvas.setAttribute('height', '768px');
 
                 canvas.numberOfCellsWidth = 16;
                 canvas.numberOfCellsHeight = 16;
@@ -328,6 +343,7 @@
                 canvas.canDraw = true;
                 canvas.drawMode = 'draw';
                 canvas.lastStroke = [];
+                canvas.undoIndex = canvas.lastStroke.length - 1;
 
                 canvas.cells = [];
                 for(let i = 0; i < canvas.numberOfCellsHeight; i++){ canvas.cells.push(new Array(canvas.numberOfCellsWidth)); }
@@ -336,8 +352,12 @@
                 canvas.addEventListener('mousedown', e => {
                     if(!canvas.canDraw){ return; }
 
+                    // clear undo/redo strokes before adding a new one
+                    while(canvas.undoIndex !== canvas.lastStroke.length-1){ canvas.lastStroke.pop(); }
+
                     if(canvas.lastStroke.length >= 40){ canvas.lastStroke.shift(); } // Cap the undo to 40
                     canvas.lastStroke.push([]);
+                    canvas.undoIndex = canvas.lastStroke.length - 1;
 
                     if(canvas.drawMode === 'fill'){ canvas.FillBlock(e.offsetX, e.offsetY); }
                     else{
@@ -445,7 +465,7 @@
 
                 for(const {x, y} of pointsToColor){
                     if(this.cells[y][x] !== newValue){
-                        this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x]});
+                        this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x], newValue});
                         this.cells[y][x] = newValue;
                     }
                 }
@@ -527,20 +547,36 @@
 
             UndoStroke(){
                 if(!this.lastStroke.length){ return; } // nothing to undo
+                if(this.undoIndex < 0){ return; } // out of bounds
+                console.log('undo')
 
-                for(const { x, y, previous} of this.lastStroke[this.lastStroke.length-1]){ this.cells[y][x] = previous; }
-                this.lastStroke.pop();
+                for(const { x, y, previous} of this.lastStroke[this.undoIndex]){ this.cells[y][x] = previous; }
+                this.undoIndex--;
+
+                this.draw();
+            };
+
+            RedoStroke(){
+                if(!this.lastStroke.length){ return; } // nothing to redo
+                if(this.undoIndex >= this.lastStroke.length-1){ return; } // out of bounds
+                console.log('redo')
+
+                this.undoIndex++;
+                for(const { x, y, newValue} of this.lastStroke[this.undoIndex]){ this.cells[y][x] = newValue; }
+
                 this.draw();
             };
 
             ClearCanvas(){
-                let needNewStroke = true;
+                while(this.undoIndex !== this.lastStroke.length-1){ this.lastStroke.pop(); } // clear undo/redo strokes
 
+                let needNewStroke = true;
                 for (let y = 0; y < this.cells.length; y++) {
                     for (let x = 0; x < this.cells[y].length; x++) {
                         if(typeof this.cells[y][x] === 'string'){
-                            if(needNewStroke){
-                                canvas.lastStroke.push([]);
+                            if(needNewStroke){ // last stroke here so it only adds a stroke if there was something to clear
+                                this.lastStroke.push([]);
+                                this.undoIndex = this.lastStroke.length - 1;
                                 needNewStroke = false;
                             }
 
@@ -622,9 +658,10 @@
         }
 
         document.querySelector('.undo-button').addEventListener('click', () => canvas.UndoStroke());
+        document.querySelector('.redo-button').addEventListener('click', () => canvas.RedoStroke());
         document.querySelector('.clear-button').addEventListener('click', () => canvas.ClearCanvas());
 
-        const saveColorContainer = document.querySelector('.save-color-buttons');
+        const saveColorContainer = document.querySelector('.color-buttons');
         for(const colorButton of Array.from(saveColorContainer.children)){
             colorButton.addEventListener('click', () => {
                 if(!colorButton.classList.contains('set')){ return; }
