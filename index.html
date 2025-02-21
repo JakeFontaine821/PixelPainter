@@ -665,35 +665,28 @@
         const saveColorContainer = document.querySelector('.color-buttons');
         for(const colorButton of Array.from(saveColorContainer.children)){
             colorButton.addEventListener('click', () => {
-                if(!colorButton.classList.contains('set')){ return; }
-
                 const currentSelected = saveColorContainer.querySelector('.selected');
                 if(currentSelected){ currentSelected.classList.remove('selected'); }
 
-                canvas.setDrawColor(colorButton.style.backgroundColor);
+                if(colorButton.classList.contains('set')){
+                    canvas.canDraw = true;
+                    canvas.setDrawColor(colorButton.style.backgroundColor);
+                }
+                else{ canvas.canDraw = false; }
+
                 colorButton.classList.add('selected');
             });
         }
 
         const setColor = (color) => {
             if(typeof color !== 'string'){ color = `#${((1 << 24) | (color[0] << 16) | (color[1] << 8) | color[2]).toString(16).slice(1)}`;}
-
-            const notSetContainer = saveColorContainer.querySelector('div:not(.set)');
             const currentSelected = saveColorContainer.querySelector('.selected');
 
-            if(notSetContainer){ // there is an unset container
-                if(currentSelected){ currentSelected.classList.remove('selected'); }
+            currentSelected.setAttribute('title', color);
+            currentSelected.classList.add('set');
+            currentSelected.style.backgroundColor = color;
 
-                const existingColorButton = saveColorContainer.querySelector(`div[title='${color}']`);
-                if(existingColorButton){ existingColorButton.classList.add('selected'); }
-                else{
-                    notSetContainer.style.backgroundColor = color;
-                    notSetContainer.setAttribute('title', color);
-                    notSetContainer.classList.add('set', 'selected');
-                }
-            }
-            else{ currentSelected.style.backgroundColor = color; }
-
+            canvas.canDraw = true;
             canvas.setDrawColor(color);
         };
 

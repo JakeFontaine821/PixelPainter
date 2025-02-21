@@ -2,6 +2,10 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 0.3.2
+- Can now select unset buttons and it will disable drawing until a color is selected
+- Selecting colors will no longer fill pallet, will only set the currently selected pallet square
+
 Version 0.3.1
 - Spacing on the buttons was weird, should be fixed now
 
