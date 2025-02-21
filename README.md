@@ -1,6 +1,9 @@
-# JakesPP
+# Pixel Painter
 
 0(major changes).0(features added).0(bug fixes)
+
+Version 0.3.3
+- Redo wasnt working with fill bucket, whoopsy
 
 Version 0.3.2
 - Can now select unset buttons and it will disable drawing until a color is selected
