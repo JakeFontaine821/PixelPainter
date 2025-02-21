@@ -2,6 +2,9 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 0.3.1
+- Spacing on the buttons was weird, should be fixed now
+
 Version 0.3.0
 - Redo has now been implimented
 
