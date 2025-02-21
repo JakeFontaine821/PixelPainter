@@ -274,7 +274,7 @@
                 <div class="blank"></div>
                 <div class="control-buttons">
                     <div class="button undo-button"  value="undo"  title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg></div>
-                    <div class="button redo-button"  value="redo"  title="Redo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M396-200q-97 0-166.5-63T160-420q0-94 69.5-157T396-640h252L544-744l56-56 200 200-200 200-56-56 104-104H396q-63 0-109.5 40T240-420q0 60 46.5 100T396-280h284v80H396Z"/></svg></div>
+                    <div class="button redo-button"  value="redo"  title="Redo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M396-200q-97 0-166.5-63T160-420q0-94 69.5-157T396-640h252L544-744l56-56 200 200-200 200-56-56 104-104H396q-63 0-109.5 40T240-420q0 60 46.5 100T396-280h284v80H396Z"/></svg></div>
                     <div class="button clear-button" value="clear" title="Clear Canvas"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></div>
                 </div>
                 <div class="draw-buttons">
@@ -408,7 +408,7 @@
                 for(let i = 0; i <= this.height; i += this.cellHeight){ this.DrawLine(0, i, this.width, i); }
             };
 
-            Print(canvas){
+            Print(canvas, includeOutlines=true){
                 const ctx = this.getContext('2d');
                 ctx.clearRect(0, 0, this.width, this.height);
 
@@ -419,7 +419,7 @@
                         ctx.fillStyle = canvas.cells[y][x];
                         ctx.fillRect(x, y, 1, 1);
 
-                        if(!canvas.drawOutlines){ continue; }
+                        if(!includeOutlines || !canvas.drawOutlines){ continue; }
                         ctx.lineWidth = canvas.strokeWidth;
                         ctx.strokeStyle = canvas.outlineColor;
                         if(!canvas.cells?.[y-1]?.[x]){ this.DrawLine(x, y, (x+1), y); } // Above
@@ -499,7 +499,6 @@
                     }
                 }
 
-                console.log(this.lastStroke);
                 this.draw();
             };
 
@@ -550,7 +549,6 @@
             UndoStroke(){
                 if(!this.lastStroke.length){ return; } // nothing to undo
                 if(this.undoIndex < 0){ return; } // out of bounds
-                console.log('undo')
 
                 for(const { x, y, previous} of this.lastStroke[this.undoIndex]){ this.cells[y][x] = previous; }
                 this.undoIndex--;
@@ -561,7 +559,6 @@
             RedoStroke(){
                 if(!this.lastStroke.length){ return; } // nothing to redo
                 if(this.undoIndex >= this.lastStroke.length-1){ return; } // out of bounds
-                console.log('redo')
 
                 this.undoIndex++;
                 for(const { x, y, newValue} of this.lastStroke[this.undoIndex]){ this.cells[y][x] = newValue; }
@@ -696,16 +693,20 @@
         colorInput.addEventListener('change', () => setColor(colorInput.value));
 
         const dropperTool = document.querySelector('.dropper-tool-button');
-        const canvasBoundingRect = canvas.getBoundingClientRect();
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         dropperTool.addEventListener('click', () => {
             if(dropperTool.classList.contains('selected')){ return; }
 
             document.addEventListener('mousedown', e => {
-                const pixelX = e.clientX - canvasBoundingRect.left;
-                const pixelY = e.clientY - canvasBoundingRect.top;
-                const pixelData = ctx.getImageData(pixelX, pixelY, 1, 1).data;
-                if(pixelData[3] !== 0){ setColor(pixelData); }
+                if(e.target === canvas){
+                    const tempCanvas = new DrawableCanvas();
+                    tempCanvas.width = parseInt(canvasWidthInput.value);
+                    tempCanvas.height = parseInt(canvasHeightInput.value);
+                    tempCanvas.Print(canvas, false);
+
+                    const ctx = tempCanvas.getContext('2d');
+                    const pixelData = ctx.getImageData(Math.floor(e.offsetX / canvas.cellWidth), Math.floor(e.offsetY / canvas.cellHeight), 1, 1).data;
+                    if(pixelData[3] !== 0){ setColor(pixelData); }
+                }
 
                 canvas.canDraw = true;
                 canvas.classList.remove('cursor-pointer');

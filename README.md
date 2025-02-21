@@ -2,6 +2,9 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 0.3.4
+- Reworked dropper tool to create a printed verison of the canvas and get the data from that
+
 Version 0.3.3
 - Redo wasnt working with fill bucket, whoopsy
 
