@@ -2,6 +2,9 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 0.4.1
+- Dropper tool fell pretty far behind in updates :sweat:
+
 Version 0.4.0
 - Can now zoom in/out by scrolling on the canvas
 - Canvas will adjust location relative to location of cursor

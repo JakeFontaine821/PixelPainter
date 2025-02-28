@@ -50,7 +50,7 @@
         }
 
         .cursor-pointer{
-            cursor: pointer;
+            cursor: pointer !important;
         }
 
         .cursor-cell{
@@ -762,18 +762,16 @@
                     tempCanvas.Print(canvas, false);
 
                     const ctx = tempCanvas.getContext('2d');
-                    const pixelData = ctx.getImageData(Math.floor(e.offsetX / canvas.cellWidth), Math.floor(e.offsetY / canvas.cellHeight), 1, 1).data;
+                    const pixelData = ctx.getImageData(Math.floor((e.offsetX - canvas.locationX) / canvas.drawScale), Math.floor((e.offsetY - canvas.locationY) / canvas.drawScale), 1, 1).data;
                     if(pixelData[3] !== 0){ setColor(pixelData); }
                 }
 
                 canvas.canDraw = true;
                 canvas.classList.remove('cursor-pointer');
-                canvas.classList.add('cursor-cell');
                 dropperTool.classList.remove('selected');
             }, {once: true});
 
             canvas.canDraw = false;
-            canvas.classList.remove('cursor-cell');
             canvas.classList.add('cursor-pointer');
             dropperTool.classList.add('selected');
         });
