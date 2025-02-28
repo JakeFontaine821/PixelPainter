@@ -2,6 +2,12 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 0.4.0
+- Can now zoom in/out by scrolling on the canvas
+- Canvas will adjust location relative to location of cursor
+- Added a 'grab' tool to move the canvas around inside the window without drawing
+- Added a 'Reset View' button to set the canvas view back to the starting point
+
 Version 0.3.4
 - Reworked dropper tool to create a printed verison of the canvas and get the data from that
 
