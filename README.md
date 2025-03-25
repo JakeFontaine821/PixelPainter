@@ -2,6 +2,11 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 1.0.0
+- Animation panel has been added
+- Moved ToggleSwitch and SliderInput to new files shorten index file
+- THERE ARE BUGS - this will add more tickets to work on :)
+
 Version 0.4.1
 - Dropper tool fell pretty far behind in updates :sweat:
 
