@@ -118,7 +118,7 @@
             cursor: pointer;
         }
 
-        .root-page .spacer{
+        .root-page .left-side .spacer{
             height: 15px;
         }
 
@@ -195,6 +195,7 @@
             flex-direction: column;
             color: var(--text);
             height: 27px;
+            transition: height 1s;
         }
 
         .root-page .animation-panel-section.active{
@@ -331,6 +332,8 @@
             display: flex;
             padding: 3px 0;
             gap: 15px;
+            width: 100vw;
+            justify-content: center;
         }
 
         .animation-panel .settings-section > div{
@@ -338,7 +341,7 @@
             gap: 15px;
         }
 
-        .animation-panel > :is(.settings-left, .settings-right){
+        .animation-panel :is(.settings-left, .settings-right){
             flex: 1;
         }
 
@@ -390,6 +393,18 @@
 
         .animation-panel canvas.animating{
             border: 2px solid var(--accent);
+        }
+
+        .animation-panel .spritesheet-save-button{
+            border: 1px solid var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+            padding: 2px 5px;
+        }
+
+        .animation-panel .spritesheet-save-button:hover{
+            border: 1px solid var(--accent);
         }
     </style>
 </head>
@@ -978,6 +993,8 @@
             canvas.setAttribute('width', setToActive ? '600px' : '768px');
             canvas.setAttribute('height', setToActive ? '600px' : '768px');
             canvas.draw(false);
+
+            canvas.ResetCanvasView();
         });
 
         // Handle drawing on the frames and copying from the frames

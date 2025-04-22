@@ -50,6 +50,30 @@ class AnimationCanvas{
         }
     };
 
+    print(cellsArray, outlineOptions={}, i){
+        const ctx = this.getContext('2d');
+
+        const canvasPixelOffset = cellsArray[0].length * i;
+
+        // draw cells
+        for(let y = 0; y < cellsArray.length; y++){
+            for(let x = 0; x < cellsArray[y].length; x++){
+                if(!cellsArray[y][x]){ continue; }
+                ctx.fillStyle = cellsArray[y][x];
+                console.log('filling rect at', canvasPixelOffset + x, y)
+                ctx.fillRect(canvasPixelOffset + x, y, 1, 1);
+
+                if(!outlineOptions.drawOutlines){ continue; }
+                ctx.lineWidth = outlineOptions.strokeWidth;
+                ctx.strokeStyle = outlineOptions.outlineColor;
+                if(!cellsArray?.[y-1]?.[x]){ this.DrawLine(canvasPixelOffset + x, y, canvasPixelOffset + (x+1), y); } // Above
+                if(!cellsArray?.[y]?.[x-1]){ this.DrawLine(canvasPixelOffset + x, y, canvasPixelOffset + x, (y+1)); } // Left
+                if(!cellsArray?.[y+1]?.[x]){ this.DrawLine(canvasPixelOffset + x, (y+1), canvasPixelOffset + (x+1), (y+1)); } // Below
+                if(!cellsArray?.[y]?.[x+1]){ this.DrawLine(canvasPixelOffset + (x+1), y, canvasPixelOffset + (x+1), (y+1)); } // Right
+            }
+        }
+    };
+
     // This is really annoying to repeat for lines so just turning it into a function
     DrawLine(x1, y1, x2, y2){
         const ctx = this.getContext('2d');
@@ -73,6 +97,18 @@ class AnimationPanel extends HTMLElement{
                         Select All
                         <toggle-switch class="select-all-toggle"></toggle-switch>
                     </div>
+                    <div class="setting fps-row">
+                        Frames per second: 
+                        <slider-input class="fps-input" min="1" max="60" showbounds value="30"></slider-input>
+                    </div>
+                </div>
+                <div class="settings-middle">
+                    <div class="setting toggle-play-setting">
+                        <svg class="play-button" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#e8eaed"><path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/></svg>
+                        <svg class="stop-button hidden" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#e8eaed"><path d="M320-640v320-320Zm-80 400v-480h480v480H240Zm80-80h320v-320H320v320Z"/></svg>
+                    </div>
+                </div>
+                <div class="settings-right">
                     <div class="setting">
                         Number Of Frames:
                         <select class="number-of-frames-input">
@@ -87,17 +123,10 @@ class AnimationPanel extends HTMLElement{
                             <option>10</option>
                         </select>
                     </div>
-                </div>
-                <div class="settings-middle">
-                    <div class="setting toggle-play-setting">
-                        <svg class="play-button" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#e8eaed"><path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/></svg>
-                        <svg class="stop-button hidden" xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="#e8eaed"><path d="M320-640v320-320Zm-80 400v-480h480v480H240Zm80-80h320v-320H320v320Z"/></svg>
-                    </div>
-                </div>
-                <div class="settings-right">
-                    <div class="setting fps-row">
-                        Frames per second: 
-                        <slider-input class="fps-input" min="1" max="60" showbounds value="30"></slider-input>
+                    <div class="setting animation-save">
+                        Save sprite sheet: 
+                        <input class="spritesheet-name"/>
+                        <div class="spritesheet-save-button">Save</div>
                     </div>
                 </div>
             </div>
@@ -111,6 +140,7 @@ class AnimationPanel extends HTMLElement{
 
         this.frameCanvasWidth = 128;
         this.frameCanvasHeight = 128;
+        this.pixelsWide = 16;
 
         const frameContainer = this.querySelector('.frame-containers');
 
@@ -228,6 +258,21 @@ class AnimationPanel extends HTMLElement{
                 if(lastAnimated){ lastAnimated.classList.remove('animating'); }
             }
         });
+
+        this.querySelector('.spritesheet-save-button').addEventListener('click', () => {
+            const tempCanvas = new AnimationCanvas(this.frameCanvasWidth*this.frameCanvases.length, this.frameCanvasHeight);
+            tempCanvas.width = parseInt(this.pixelsWide * this.frameCanvases.length);
+            tempCanvas.height = parseInt(this.pixelsWide);
+            for(const [i, canvasToDraw] of this.frameCanvases.entries()){
+                console.log(canvasToDraw.cellsArray);
+                tempCanvas.print(canvasToDraw.cellsArray, canvasToDraw.outlineOptions, i);
+            }
+
+            const link = document.createElement('a');
+            link.href = tempCanvas.toDataURL('image/png');
+            link.download = `${this.querySelector('.spritesheet-name').value}.png`;
+            link.click();
+        });
     };
 
     DrawOnSelectedCanvas(cellsArray, outlineOptions={}){
@@ -244,6 +289,7 @@ class AnimationPanel extends HTMLElement{
         const scale = 128 / longerSide;
 
         this.frameCanvasWidth = width*scale;
+        this.pixelsWide = width;
         this.frameCanvasHeight = height*scale;
 
         for(const canvas of this.frameCanvases){
