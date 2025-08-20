@@ -448,10 +448,6 @@
                     Outline: 
                     <toggle-switch class="outline-toggle checked"></toggle-switch>
                 </div>
-                <div class="setting outline-size-row">
-                    Outline Size: 
-                    <slider-input class="outline-size-input" min="1" max="3" showbounds value="2"></slider-input>
-                </div>
                 <div class="setting outline-color-row">
                     Select Outline Color:
                     <input type="color" class="outline-color-input" value="#000000">
@@ -481,7 +477,7 @@
                         <div class="button undo-button"  title="Undo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"/></svg></div>
                         <div class="button redo-button"  title="Redo"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M396-200q-97 0-166.5-63T160-420q0-94 69.5-157T396-640h252L544-744l56-56 200 200-200 200-56-56 104-104H396q-63 0-109.5 40T240-420q0 60 46.5 100T396-280h284v80H396Z"/></svg></div>
                         <div class="button clear-button" title="Clear Canvas"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg></div>
-                        <div class="button reset-button" title="Reset Canvas View"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M440-122q-121-15-200.5-105.5T160-440q0-66 26-126.5T260-672l57 57q-38 34-57.5 79T240-440q0 88 56 155.5T440-202v80Zm80 0v-80q87-16 143.5-83T720-440q0-100-70-170t-170-70h-3l44 44-56 56-140-140 140-140 56 56-44 44h3q134 0 227 93t93 227q0 121-79.5 211.5T520-122Z"/></svg></div>
+                        <div class="button reset-button" title="Reset Canvas View"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"><path d="M480-320v-100q0-25 17.5-42.5T540-480h100v60H540v100h-60Zm60 240q-25 0-42.5-17.5T480-140v-100h60v100h100v60H540Zm280-240v-100H720v-60h100q25 0 42.5 17.5T880-420v100h-60ZM720-80v-60h100v-100h60v100q0 25-17.5 42.5T820-80H720Zm111-480h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z"/></svg></div>
                     </div>
                 </div>
                 <div class="draw-buttons">
@@ -502,7 +498,7 @@
                 </div>
             </div>
         </div>
-        <div class="animation-panel-section poppins-medium">
+        <!--<div class="animation-panel-section poppins-medium">
             <div class="panel-tab-row">
                 <div class="spacer"></div>
                 <div class="panel-tab">Animation Panel
@@ -512,12 +508,12 @@
                 <div class="spacer"></div>
             </div>
             <animation-panel></animation-panel>
-        </div>
+        </div>-->
     </div>
 
     <script src="ToggleSwitch.js"></script>
     <script src="SliderInput.js"></script>
-    <script src="AnimationPanel.js"></script>
+    <!-- <script src="AnimationPanel.js"></script> -->
     <script>
         class DrawableCanvas{
             constructor(){
@@ -537,7 +533,7 @@
 
                 canvas.drawColor = '#ff0000';
                 canvas.drawDividers = true;
-                canvas.strokeWidth = 2;
+                canvas.strokeWidth = 1;
                 canvas.outlineColor = '#000000';
                 canvas.drawOutlines = true;
 
@@ -549,6 +545,8 @@
                 canvas.cells = [];
                 for(let i = 0; i < canvas.numberOfCellsHeight; i++){ canvas.cells.push(new Array(canvas.numberOfCellsWidth)); }
 
+                /****************************** BIG IMPORTANT ******************************/
+                // Handle the user clicking down on the canvas
                 canvas.drawing = false;
                 canvas.moving = false;
                 canvas.addEventListener('mousedown', e => {
@@ -567,30 +565,34 @@
                         canvas.lastStroke.push([]);
                         canvas.undoIndex = canvas.lastStroke.length - 1;
 
-                        if(canvas.drawMode === 'fill'){ canvas.FillBlock(e.offsetX, e.offsetY); }
+                        if(canvas.drawMode === 'fill'){ canvas.fillBlock(e.offsetX, e.offsetY); }
                         else if(canvas.drawMode === 'draw' || canvas.drawMode === 'erase'){
                             canvas.drawing = true;
-                            canvas.ColorCell(e.offsetX, e.offsetY);
+                            canvas.colorCell(e.offsetX, e.offsetY);
                         }
                     }
                 });
+
+                // Mouse up and leave listeners handle the user ending the stroke
                 canvas.addEventListener('mouseleave', () => {canvas.drawing = false;});
                 window.addEventListener('mouseup', () => {canvas.drawing = false; canvas.moving = false;});
 
+                // Handle the continueation of a stroke
                 window.addEventListener('mousemove', e => {
                     if(canvas.moving){
-                        canvas.locationX += e.clientX - canvas.beginningOfMoveX; // fuck kevin
+                        canvas.locationX += e.clientX - canvas.beginningOfMoveX;
                         canvas.locationY += e.clientY - canvas.beginningOfMoveY;
 
                         canvas.beginningOfMoveX = e.clientX;
                         canvas.beginningOfMoveY = e.clientY;
-                        canvas.draw(false);
+                        canvas.draw();
                     }
                     else if(e.target === canvas && canvas.drawing){
-                        canvas.ColorCell(e.offsetX, e.offsetY);
+                        canvas.colorCell(e.offsetX, e.offsetY);
                     }
                 });
 
+                // Handle Zoom from the user scrolling
                 canvas.addEventListener('wheel', e => {
                     e.preventDefault();
 
@@ -604,7 +606,7 @@
                         canvas.locationY = (canvas.locationY - e.offsetY) * scale + e.offsetY;
                     }
 
-                    canvas.draw(false);
+                    canvas.draw();
                 });
 
                 for(const propName of Object.getOwnPropertyNames(DrawableCanvas.prototype)){
@@ -615,7 +617,7 @@
                 return canvas;
             };
 
-            draw(sendEvent=true){
+            draw(){
                 const ctx = this.getContext('2d');
                 ctx.clearRect(0, 0, this.width, this.height);
 
@@ -629,10 +631,10 @@
                         if(!this.drawOutlines){ continue; }
                         ctx.lineWidth = this.strokeWidth;
                         ctx.strokeStyle = this.outlineColor;
-                        if(!this.cells?.[y-1]?.[x]){ this.DrawLine(this.locationX + x * this.drawScale, this.locationY + y * this.drawScale, this.locationX + (x+1) * this.drawScale, this.locationY + y * this.drawScale); } // Above
-                        if(!this.cells?.[y]?.[x-1]){ this.DrawLine(this.locationX + x * this.drawScale, this.locationY + y * this.drawScale, this.locationX + x * this.drawScale, this.locationY + (y+1) * this.drawScale); } // Left
-                        if(!this.cells?.[y+1]?.[x]){ this.DrawLine(this.locationX + x * this.drawScale, this.locationY + (y+1) * this.drawScale, this.locationX + (x+1) * this.drawScale, this.locationY + (y+1) * this.drawScale); } // Below
-                        if(!this.cells?.[y]?.[x+1]){ this.DrawLine(this.locationX + (x+1) * this.drawScale, this.locationY + y * this.drawScale, this.locationX + (x+1) * this.drawScale, this.locationY + (y+1) * this.drawScale); } // Right
+                        if(!this.cells?.[y-1]?.[x]){ this.drawLine(this.locationX + x * this.drawScale, this.locationY + y * this.drawScale, this.locationX + (x+1) * this.drawScale, this.locationY + y * this.drawScale); } // Above
+                        if(!this.cells?.[y]?.[x-1]){ this.drawLine(this.locationX + x * this.drawScale, this.locationY + y * this.drawScale, this.locationX + x * this.drawScale, this.locationY + (y+1) * this.drawScale); } // Left
+                        if(!this.cells?.[y+1]?.[x]){ this.drawLine(this.locationX + x * this.drawScale, this.locationY + (y+1) * this.drawScale, this.locationX + (x+1) * this.drawScale, this.locationY + (y+1) * this.drawScale); } // Below
+                        if(!this.cells?.[y]?.[x+1]){ this.drawLine(this.locationX + (x+1) * this.drawScale, this.locationY + y * this.drawScale, this.locationX + (x+1) * this.drawScale, this.locationY + (y+1) * this.drawScale); } // Right
                     }
                 }
 
@@ -640,24 +642,22 @@
                 const heightOfCanvas = (this.numberOfCellsHeight * this.drawScale);
                 ctx.lineWidth = 1;
                 ctx.strokeStyle = '#000000';
+
                 // Draw the border around the canvas
-                this.DrawLine(this.locationX, this.locationY, this.locationX + widthOfCanvas, this.locationY); // Top
-                this.DrawLine(this.locationX, this.locationY + heightOfCanvas, this.locationX + widthOfCanvas, this.locationY + heightOfCanvas); // Bottom
-                this.DrawLine(this.locationX, this.locationY, this.locationX, this.locationY + heightOfCanvas); // Left
-                this.DrawLine(this.locationX + widthOfCanvas, this.locationY, this.locationX + widthOfCanvas, this.locationY + heightOfCanvas); // Right
+                this.drawLine(this.locationX, this.locationY, this.locationX + widthOfCanvas, this.locationY); // Top
+                this.drawLine(this.locationX, this.locationY + heightOfCanvas, this.locationX + widthOfCanvas, this.locationY + heightOfCanvas); // Bottom
+                this.drawLine(this.locationX, this.locationY, this.locationX, this.locationY + heightOfCanvas); // Left
+                this.drawLine(this.locationX + widthOfCanvas, this.locationY, this.locationX + widthOfCanvas, this.locationY + heightOfCanvas); // Right
                 
                 // draw lines over cells
                 if(!this.drawDividers || this.drawScale < 4){ return; }
 
                 // in this context 'i' is the cell we're on
-                for(let i = 1; i <= this.numberOfCellsWidth-1; i++){ this.DrawLine(this.locationX + (i * this.drawScale), this.locationY, this.locationX + (i * this.drawScale), this.locationY + (this.numberOfCellsHeight * this.drawScale)); }
-                for(let i = 1; i <= this.numberOfCellsHeight-1; i++){ this.DrawLine(this.locationX, this.locationY + (i * this.drawScale), this.locationX + (this.numberOfCellsWidth * this.drawScale), this.locationY + (i * this.drawScale)); }
-
-                if(!sendEvent){ return; }
-                this.dispatchEvent(Object.assign(new Event('redrawn'), {cellsArray: this.cells, outlineOptions: {drawOutlines: this.drawOutlines, strokeWidth: this.strokeWidth, outlineColor: this.outlineColor}}));
+                for(let i = 1; i <= this.numberOfCellsWidth-1; i++){ this.drawLine(this.locationX + (i * this.drawScale), this.locationY, this.locationX + (i * this.drawScale), this.locationY + (this.numberOfCellsHeight * this.drawScale)); }
+                for(let i = 1; i <= this.numberOfCellsHeight-1; i++){ this.drawLine(this.locationX, this.locationY + (i * this.drawScale), this.locationX + (this.numberOfCellsWidth * this.drawScale), this.locationY + (i * this.drawScale)); }
             };
 
-            Print(canvas, includeOutlines=true){
+            print(canvas, includeOutlines=true){
                 const ctx = this.getContext('2d');
                 ctx.clearRect(0, 0, this.width, this.height);
 
@@ -671,15 +671,15 @@
                         if(!includeOutlines || !canvas.drawOutlines){ continue; }
                         ctx.lineWidth = canvas.strokeWidth;
                         ctx.strokeStyle = canvas.outlineColor;
-                        if(!canvas.cells?.[y-1]?.[x]){ this.DrawLine(x, y, (x+1), y); } // Above
-                        if(!canvas.cells?.[y]?.[x-1]){ this.DrawLine(x, y, x, (y+1)); } // Left
-                        if(!canvas.cells?.[y+1]?.[x]){ this.DrawLine(x, (y+1), (x+1), (y+1)); } // Below
-                        if(!canvas.cells?.[y]?.[x+1]){ this.DrawLine((x+1), y, (x+1), (y+1)); } // Right
+                        if(!canvas.cells?.[y-1]?.[x]){ this.drawLine(x, y, (x+1), y); } // Above
+                        if(!canvas.cells?.[y]?.[x-1]){ this.drawLine(x, y, x, (y+1)); } // Left
+                        if(!canvas.cells?.[y+1]?.[x]){ this.drawLine(x, (y+1), (x+1), (y+1)); } // Below
+                        if(!canvas.cells?.[y]?.[x+1]){ this.drawLine((x+1), y, (x+1), (y+1)); } // Right
                     }
                 }
             };
 
-            ColorCell(pixelX, pixelY){
+            colorCell(pixelX, pixelY){
                 const y = Math.floor((pixelY - this.locationY) / this.drawScale);
                 const x = Math.floor((pixelX - this.locationX) / this.drawScale);
                 if(y < 0 || y >= this.numberOfCellsHeight || x < 0 || x >= this.numberOfCellsWidth){ return; } // Off canvas
@@ -719,13 +719,16 @@
                     if(this.cells[y][x] !== newValue){
                         this.lastStroke[this.lastStroke.length-1].push({pixelX, pixelY, x, y, previous: this.cells[y][x], newValue});
                         this.cells[y][x] = newValue;
+
+                        // dispatch event for coloring in a new cell
+                        this.dispatchEvent(Object.assign(new Event('colorcell'), {y, x, color: newValue}));
                     }
                 }
 
                 this.draw();
             };
 
-            FillBlock(pixelX, pixelY){
+            fillBlock(pixelX, pixelY){
                 const y = Math.floor((pixelY - this.locationY) / this.drawScale);
                 const x = Math.floor((pixelX - this.locationX) / this.drawScale);
                 if(y < 0 || y >= this.numberOfCellsHeight || x < 0 || x >= this.numberOfCellsWidth){ return; } // Off canvas
@@ -757,13 +760,13 @@
                 this.drawMode = newMode;
             };
 
-            ChangeResolution(width, height){
+            changeResolution(width, height){
                 this.numberOfCellsWidth = width;
                 this.numberOfCellsHeight = height;
 
                 this.cells = [];
                 for(let i = 0; i < this.numberOfCellsHeight; i++){ this.cells.push(new Array(this.numberOfCellsWidth)); }
-                this.draw(false);
+                this.draw();
             };
 
             setDrawColor(newColor){
@@ -772,45 +775,50 @@
 
             setDrawOutlines(toggle){
                 this.drawOutlines = toggle;
-                this.draw();
-            };
+                this.dispatchEvent(Object.assign(new Event('outlinechanges'), {outlineOptions: {draw: this.drawOutlines}}));
 
-            setOutLineSize(size){
-                this.strokeWidth = size;
                 this.draw();
             };
 
             setOutlineColor(newColor){
                 this.outlineColor = newColor;
+                this.dispatchEvent(Object.assign(new Event('outlinechanges'), {outlineOptions: {color: this.outlineColor}}));
+
                 this.draw();
             };
 
             setDrawDividers(toggle){
                 this.drawDividers = toggle;
-                this.draw(false);
+                this.draw();
             };
 
-            UndoStroke(){
+            undoStroke(){
                 if(!this.lastStroke.length){ return; } // nothing to undo
                 if(this.undoIndex < 0){ return; } // out of bounds
 
-                for(const { x, y, previous} of this.lastStroke[this.undoIndex]){ this.cells[y][x] = previous; }
+                for(const { x, y, previous} of this.lastStroke[this.undoIndex]){
+                    this.cells[y][x] = previous;
+                    this.dispatchEvent(Object.assign(new Event('colorcell'), {y, x, color: previous}));
+                }
                 this.undoIndex--;
 
                 this.draw();
             };
 
-            RedoStroke(){
+            redoStroke(){
                 if(!this.lastStroke.length){ return; } // nothing to redo
                 if(this.undoIndex >= this.lastStroke.length-1){ return; } // out of bounds
 
                 this.undoIndex++;
-                for(const { x, y, newValue} of this.lastStroke[this.undoIndex]){ this.cells[y][x] = newValue; }
+                for(const { x, y, newValue} of this.lastStroke[this.undoIndex]){
+                    this.cells[y][x] = newValue;
+                    this.dispatchEvent(Object.assign(new Event('colorcell'), {y, x, color: newValue}));
+                }
 
                 this.draw();
             };
 
-            ClearCanvas(){
+            clearCanvas(){
                 while(this.undoIndex !== this.lastStroke.length-1){ this.lastStroke.pop(); } // clear undo/redo strokes
 
                 let needNewStroke = true;
@@ -832,25 +840,15 @@
                 this.draw();
             };
 
-            CopyFromFrame(cellsArray, outlineOptions){
-                this.cells = JSON.parse(JSON.stringify(cellsArray));
-
-                this.drawOutlines = outlineOptions.drawOutlines;
-                this.lineWidth    = outlineOptions.strokeWidth;
-                this.strokeStyle  = outlineOptions.outlineColor;
-
-                this.draw(false);
-            };
-
-            ResetCanvasView(){
+            resetCanvasView(){
                 this.locationX = 0;
                 this.locationY = 0;
                 this.drawScale = this.width / this.numberOfCellsWidth;
-                this.draw(false);
+                this.draw();
             };
 
             // This is really annoying to repeat for lines so just turning it into a function
-            DrawLine(x1, y1, x2, y2){
+            drawLine(x1, y1, x2, y2){
                 const ctx = this.getContext('2d');
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
@@ -870,8 +868,8 @@
         const setResolution = (w, h) => {
             const width = parseInt(w);
             const height = parseInt(h);
-            canvas.ChangeResolution(width, height);
-            animationPanel.SetResolution(width, height);
+            canvas.changeResolution(width, height);
+            // animationPanel.SetResolution(width, height);
         }
         canvasWidthInput.addEventListener('change', () => setResolution(canvasWidthInput.value, canvasHeightInput.value));
         canvasHeightInput.addEventListener('change', () =>  setResolution(canvasWidthInput.value, canvasHeightInput.value));
@@ -886,10 +884,6 @@
             outlineColorRow.toggleAttribute('disabled', !outlineToggle.checked);
         });
 
-        // set the outline width
-        const outlineSizeInput = document.querySelector('.outline-size-input');
-        outlineSizeInput.addEventListener('change', () => canvas.setOutLineSize(outlineSizeInput.value));
-
         // toggle the cell's outline color
         const outlineColorInput = document.querySelector('.outline-color-input');
         outlineColorInput.addEventListener('change', () => canvas.setOutlineColor(outlineColorInput.value));
@@ -902,7 +896,7 @@
             const tempCanvas = new DrawableCanvas();
             tempCanvas.width = parseInt(canvasWidthInput.value);
             tempCanvas.height = parseInt(canvasHeightInput.value);
-            tempCanvas.Print(canvas);
+            tempCanvas.print(canvas);
 
             const link = document.createElement('a');
             link.href = tempCanvas.toDataURL('image/png');
@@ -919,10 +913,10 @@
             });
         }
 
-        document.querySelector('.undo-button').addEventListener('click', () => canvas.UndoStroke());
-        document.querySelector('.redo-button').addEventListener('click', () => canvas.RedoStroke());
-        document.querySelector('.clear-button').addEventListener('click', () => canvas.ClearCanvas());
-        document.querySelector('.reset-button').addEventListener('click', () => canvas.ResetCanvasView());
+        document.querySelector('.undo-button').addEventListener('click', () => canvas.undoStroke());
+        document.querySelector('.redo-button').addEventListener('click', () => canvas.redoStroke());
+        document.querySelector('.clear-button').addEventListener('click', () => canvas.clearCanvas());
+        document.querySelector('.reset-button').addEventListener('click', () => canvas.resetCanvasView());
 
         const saveColorContainer = document.querySelector('.color-buttons');
         for(const colorButton of Array.from(saveColorContainer.children)){
@@ -966,7 +960,7 @@
                     const tempCanvas = new DrawableCanvas();
                     tempCanvas.width = parseInt(canvasWidthInput.value);
                     tempCanvas.height = parseInt(canvasHeightInput.value);
-                    tempCanvas.Print(canvas, false);
+                    tempCanvas.print(canvas, false);
 
                     const ctx = tempCanvas.getContext('2d');
                     const pixelData = ctx.getImageData(Math.floor((e.offsetX - canvas.locationX) / canvas.drawScale), Math.floor((e.offsetY - canvas.locationY) / canvas.drawScale), 1, 1).data;
@@ -984,29 +978,35 @@
         });
 
         // Set up the animation tab
-        const animationSection = document.querySelector('.animation-panel-section');
-        const panelTab = document.querySelector('.panel-tab');
-        panelTab.addEventListener('click', () => {
-            for(const arrow of panelTab.children){ arrow.classList.toggle('hidden'); }
+        // const animationSection = document.querySelector('.animation-panel-section');
+        // const panelTab = document.querySelector('.panel-tab');
+        // panelTab.addEventListener('click', () => {
+        //     for(const arrow of panelTab.children){ arrow.classList.toggle('hidden'); }
 
-            const setToActive = animationSection.classList.toggle('active');
-            canvas.setAttribute('width', setToActive ? '600px' : '768px');
-            canvas.setAttribute('height', setToActive ? '600px' : '768px');
-            canvas.draw(false);
+        //     const setToActive = animationSection.classList.toggle('active');
+        //     canvas.setAttribute('width', setToActive ? '600px' : '768px');
+        //     canvas.setAttribute('height', setToActive ? '600px' : '768px');
+        //     canvas.draw();
 
-            canvas.ResetCanvasView();
-        });
+        //     canvas.resetCanvasView();
+        // });
 
         // Handle drawing on the frames and copying from the frames
-        const animationPanel = document.querySelector('.animation-panel');
-        canvas.addEventListener('redrawn', ({cellsArray, outlineOptions}) => {
-            if(animationSection.classList.contains('active')){ animationPanel.DrawOnSelectedCanvas(cellsArray, outlineOptions); }
-        });
+        // const animationPanel = document.querySelector('.animation-panel');
+        // canvas.addEventListener('colorcell', ({y, x, color}) => {
+        //     if(!animationSection.classList.contains('active')){ return; }
+        //     animationPanel.ColorOnSelectedCanvas(y, x, color);
+        // });
 
-        animationPanel.addEventListener('copyfromframe', ({cellsArray, outlineOptions}) => canvas.CopyFromFrame(cellsArray, outlineOptions));
+        // canvas.addEventListener('outlinechanges', ({outlineOptions}) => {
+        //     if(!animationSection.classList.contains('active')){ return; }
+        //     animationPanel.UpdateOutlineOptions(outlineOptions);
+        // });
+
+        // animationPanel.addEventListener('copyfromframe', ({cellsArray, outlineOptions}) => canvas.CopyFromFrame(cellsArray, outlineOptions));
 
         // draw the canvas on load
-        canvas.draw(false);
+        canvas.draw();
     </script>
 </body>
 </html>

@@ -2,6 +2,10 @@
 
 0(major changes).0(features added).0(bug fixes)
 
+Version 1.1.0
+- Removed AnimationPanel cause I dont like it anymore :)
+- Renamed a lot of the canvas' functions to be more consistent moving forward
+
 Version 1.0.0
 - Animation panel has been added
 - Moved ToggleSwitch and SliderInput to new files shorten index file
